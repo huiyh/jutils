@@ -63,4 +63,17 @@ public class IOUtils {
             close(writer);
         }
     }
+
+    public static void write(File file, String line){
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+            writer.write(line);
+            writer.newLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            close(writer);
+        }
+    }
 }
