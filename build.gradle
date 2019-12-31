@@ -8,7 +8,9 @@ version '1.0'
 sourceCompatibility = 1.8
 
 repositories {
+    jcenter()
     mavenCentral()
+    google()
 }
 
 dependencies {
