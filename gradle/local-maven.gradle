@@ -3,14 +3,18 @@ apply plugin: 'maven'
 uploadArchives {
     repositories {
         mavenDeployer {
-
-            println("pom.url: ${System.getenv("LOCAL_MAVEN")}")
-            println("pom.version: ${project.version}")
-
             repository(url: "file://${System.getenv("LOCAL_MAVEN")}")
             pom.version  = "${project.version}"
             pom.artifactId = "${project.name}"
             pom.groupId = "${project.group}"
         }
+    }
+}
+
+task localUpload(dependsOn: ['uploadArchives']) {
+    doLast {
+        println "published to: "
+        println "repo.url = ${System.getenv("LOCAL_MAVEN")} "
+        println "repo.pom = ${project.group}:${project.name}:${project.version}"
     }
 }
