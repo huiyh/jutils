@@ -27,7 +27,7 @@ bintray {
     user = localProperties.getProperty("bintray.user")
     key = localProperties.getProperty("bintray.apikey")
 
-    configurations = ['archives', 'sourcesJar']
+    configurations = ['archives']
 
     pkg {
         userOrg = BINTRAY_ORGANIZATION
@@ -46,10 +46,6 @@ bintray {
 signing {
     required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
-}
-
-artifacts {
-    archives sourcesJar
 }
 
 if (JavaVersion.current().isJava8Compatible()) {

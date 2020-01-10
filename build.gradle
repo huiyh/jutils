@@ -1,5 +1,11 @@
 apply plugin: 'java'
+
+// group和version必须在 apply脚本之前
+group 'dev.hyh'
+version '1.0.0'
+
 apply from: rootProject.file('gradle/bintray.gradle')
+apply from: rootProject.file('gradle/local-maven.gradle')
 
 buildscript {
     repositories {
@@ -7,6 +13,7 @@ buildscript {
         google()
         mavenCentral()
     }
+
     dependencies {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
         classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
@@ -14,11 +21,7 @@ buildscript {
     }
 }
 
-group 'dev.hyh'
-version '1.0.0'
-
 sourceCompatibility = 1.8
-
 
 repositories {
     jcenter()
