@@ -9,9 +9,7 @@ def POM_ISSUE_URL = 'https://github.com/huiyh/jutils/issues'
 def BINTRAY_LICENCE= ["Apache-2.0"]
 def BINTRAY_ORGANIZATION = "kitdroid"
 def BINTRAY_REPOSITORY = "maven"
-def BINTRAY_PACKAGE = "jutils"
-//def BINTRAY_PACKAGE = "${project.name}"
-//def BINTRAY_PACKAGE = "${project.group}:${project.name}"
+def BINTRAY_PACKAGE = "${project.name}"
 
 def isReleaseBuild() {
     return version.contains("SNAPSHOT") == false
@@ -19,7 +17,7 @@ def isReleaseBuild() {
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 Properties localProperties = new Properties()
