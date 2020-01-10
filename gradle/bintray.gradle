@@ -1,0 +1,77 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'com.jfrog.bintray'
+
+def POM_URL = "https://github.com/huiyh/jutils"
+def POM_SCM_URL = "https://github.com/huiyh/jutils.git"
+def POM_ISSUE_URL = 'https://github.com/huiyh/jutils/issues'
+
+def BINTRAY_LICENCE= ["Apache-2.0"]
+def BINTRAY_ORGANIZATION = "kitdroid"
+def BINTRAY_REPOSITORY = "maven"
+def BINTRAY_PACKAGE = "jutils"
+//def BINTRAY_PACKAGE = "${project.name}"
+//def BINTRAY_PACKAGE = "${project.group}:${project.name}"
+
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+Properties localProperties = new Properties()
+localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = localProperties.getProperty("bintray.user")
+    key = localProperties.getProperty("bintray.apikey")
+
+    configurations = ['archives', 'sourcesJar']
+
+    pkg {
+        userOrg = BINTRAY_ORGANIZATION
+        repo = BINTRAY_REPOSITORY
+        name = BINTRAY_PACKAGE
+        licenses = BINTRAY_LICENCE
+        vcsUrl = POM_SCM_URL
+        websiteUrl = POM_URL
+        issueTrackerUrl = POM_ISSUE_URL
+        publicDownloadNumbers = true
+        publish = true
+        dryRun = false
+    }
+}
+
+signing {
+    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+task buildAndPublishRepo(dependsOn: ['build','sourcesJar' , 'uploadArchives']) {
+    doLast {
+        println "*published to repo: ${project.group}:${project.name}:${project.version}"
+    }
+}
+
+tasks.getByName("bintrayUpload") {
+    it.doFirst {
+        if (!isReleaseBuild()) {
+            throw new GradleException("bintrayUpload only support release version")
+        }
+    }
+}

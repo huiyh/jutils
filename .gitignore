@@ -5,3 +5,4 @@ jutils/
 **.iml
 */.gradle/
 build/
+local.properties
