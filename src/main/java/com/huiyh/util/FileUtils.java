@@ -1,30 +1,10 @@
 package com.huiyh.util;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
+import java.io.*;
 import java.nio.channels.FileChannel;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Created by huiyh on 2016/2/15.
@@ -56,90 +36,8 @@ public class FileUtils {
         }
     }
 
-    /**
-     * 得到解压到Jar的文件夹
-     *
-     * @param jarPath
-     * @return
-     */
-    public static String getOutJarFileName(String jarPath) {
-        String separator = File.separator;
-        String[] splits = FileUtils.splitPath(jarPath);
-        StringBuilder sb = new StringBuilder();
-        // 适配Linux && OS X
-        if (splits[0] != null && !splits[0].equals("")
-                && !splits[0].equals(" ")) {
-            sb.append(File.separator + splits[0]);
-        }
-        for (int i = 1; i < splits.length - 1; i++) {
-            sb.append(File.separator + splits[i]);
-        }
-        sb.append(File.separator);
-        String jarName = splits[splits.length - 1];
-        sb.append(jarName.substring(0, jarName.length() - ".jar".length()));
-        sb.append(File.separator);
-        return sb.toString();
-    }
 
-    /**
-     * 解压Jar文件到与Jar同目录的与Jar相同名字的文件夹中
-     *
-     * @param jarPath
-     * @throws IOException
-     */
-    public static void unzipJar(String jarPath) throws IOException {
-        // 1.通过Jar的地址，找出Jar的目录
-        String outJarPath = getOutJarFileName(jarPath);
-        // 2.创建解压的文件
-        createJarDir(outJarPath);
-        // 3.解压
-        doUnZipJar(jarPath, outJarPath);
-    }
-
-    /**
-     * 创建Jar的文件夹
-     *
-     * @param path
-     */
-    private static void createJarDir(String path) {
-        File dir = new File(path);
-        if (dir.exists()) {
-            deleteDir(dir.getAbsolutePath());
-        }
-        dir.mkdirs();
-    }
-
-    /**
-     * 做压缩操作
-     *
-     * @param jarPath
-     * @param outJarFile
-     * @throws IOException
-     */
-    private static void doUnZipJar(String jarPath, String outJarFile) {
-        JarFile jarFile = null;
-        try {
-            jarFile = new JarFile(jarPath);
-            Enumeration<JarEntry> jarEntries = jarFile.entries();
-            while (jarEntries.hasMoreElements()) {
-                JarEntry jarEntry = jarEntries.nextElement();
-                String outFileName = outJarFile + jarEntry.getName();
-                File f = new File(outFileName);
-                makeSupDir(outFileName);
-                if (jarEntry.isDirectory()) {
-                    continue;
-                }
-                writeFile(jarFile.getInputStream(jarEntry), f);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.close(jarFile);
-        }
-
-    }
-
-    private static void makeSupDir(String outFileName) {
+    public static void makeSupDir(String outFileName) {
         Pattern p = Pattern.compile("[/\\" + File.separator + "]");
         Matcher m = p.matcher(outFileName);
         while (m.find()) {
@@ -152,7 +50,7 @@ public class FileUtils {
         }
     }
 
-    private static void writeFile(InputStream ips, File outputFile) {
+    public static void writeFile(InputStream ips, File outputFile) {
         FileOutputStream fileOutputStream = null;
         OutputStream ops = null;
         try {
@@ -239,35 +137,6 @@ public class FileUtils {
             IOUtils.close(out);
         }
         return success;
-    }
-
-    /**
-     * 将文件内容按行读取放到Set里面
-     *
-     * @param filePath
-     * @return
-     */
-    public static Set<String> readFile2Set(String filePath) {
-        Set<String> set = new HashSet<>();
-        Reader fileReader = null;
-        BufferedReader br = null;
-        try {
-            fileReader = new FileReader(new File(filePath));
-            br = new BufferedReader(fileReader);
-            String line = br.readLine();
-            while (line != null) {
-                set.add(line.trim());
-                line = br.readLine();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.close(br);
-            IOUtils.close(fileReader);
-        }
-        return set;
     }
 
     /**
@@ -376,69 +245,6 @@ public class FileUtils {
     }
 
     /**
-     * @param sourceJarFile
-     * @param out
-     * @param entryName
-     */
-    @Deprecated
-    public static boolean copyEntry(JarFile sourceJarFile, JarOutputStream out, String entryName) {
-
-        ZipEntry entry = sourceJarFile.getEntry(entryName);
-        if (entry == null) {
-            throw new NullPointerException("Entry:" + entryName + " is null");
-        }
-
-        boolean result = false;
-        InputStream inputStream = null;
-        try {
-            inputStream = sourceJarFile.getInputStream(entry);
-            JarEntry jarentry = new JarEntry(entryName);
-            out.putNextEntry(jarentry);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-            out.closeEntry();
-            result = true;
-            Log.d("Entry:" + entryName + " copy success");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.close(inputStream);
-        }
-        return result;
-    }
-    /**
-     * @param sourceJarFile
-     * @param out
-     * @param entry
-     */
-    public static boolean copyEntry(ZipFile sourceJarFile, ZipOutputStream out, ZipEntry entry) {
-
-        boolean result = false;
-        InputStream inputStream = null;
-        try {
-            inputStream = sourceJarFile.getInputStream(entry);
-            ZipEntry jarentry = new ZipEntry(entry.getName());
-            out.putNextEntry(jarentry);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-            out.closeEntry();
-            result = true;
-            Log.d("Entry:" + entry.getName() + " copy success");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.close(inputStream);
-        }
-        return result;
-    }
-
-    /**
      * nio高速拷贝文件
      *
      * @param source
@@ -468,17 +274,6 @@ public class FileUtils {
             IOUtils.close(out);
         }
     }
-
-    /**
-     * @param className 根据class名称,需要转换为entryName
-     *                  转换方法是将"."替换为"/",并在最后添加".class"
-     * @return entryName
-     */
-    public static String getClassEntryName(String className) {
-        String entryName = className.replace(".", "/") + ".class";
-        return entryName;
-    }
-
 
     /**
      * 根据指定文件,创建一个添加了指定后缀的新文件
@@ -523,12 +318,90 @@ public class FileUtils {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(file);
-            properties.store(fos,null);
+            properties.store(fos, null);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             IOUtils.close(fos);
+        }
+    }
+
+    /**
+     * 将文件内容按行读取放到Set里面
+     *
+     * @param filePath
+     * @return
+     */
+    public static Set<String> readSet(String filePath) {
+        Set<String> set = new HashSet<>();
+        Reader fileReader = null;
+        BufferedReader br = null;
+        try {
+            fileReader = new FileReader(new File(filePath));
+            br = new BufferedReader(fileReader);
+            String line = br.readLine();
+            while (line != null) {
+                set.add(line.trim());
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(br);
+            IOUtils.close(fileReader);
+        }
+        return set;
+    }
+
+    public static List<String> readLines(File file) {
+
+        List<String> lines = new ArrayList<>();
+
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+            String lineTxt = null;
+            while ((lineTxt = reader.readLine()) != null) { //数据以逗号分隔
+                lines.add(lineTxt);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(reader);
+        }
+
+        return lines;
+    }
+
+    public static void writeLines(File file, List<String> lines) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+
+            for (String line : lines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(writer);
+        }
+    }
+
+    public static void write(File file, String line) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+            writer.write(line);
+            writer.newLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(writer);
         }
     }
 }

@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 // group和version必须在 apply脚本之前
 group 'dev.hyh'
-version '1.0.0'
+version '1.0.1'
 
 apply from: rootProject.file('gradle/bintray.gradle')
 apply from: rootProject.file('gradle/local-maven.gradle')
