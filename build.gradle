@@ -31,4 +31,12 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.json:json:20190722"
+    implementation "org.jdom:jdom:2.0.2"
+//    implementation 'commons-beanutilscommons-beanutils1.9.4'
+//    implementation 'org.apache.commonscommons-collections44.4'
+//    implementation 'commons-iocommons-io2.6'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    //    implementation 'commons-loggingcommons-logging1.2'
+//    implementation 'org.apache.servicemix.bundlesorg.apache.servicemix.bundles.ezmorph1.0.6_1'
 }
