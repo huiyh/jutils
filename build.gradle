@@ -4,34 +4,19 @@ apply plugin: 'java'
 group 'dev.hyh'
 version '1.0.1'
 
-apply from: rootProject.file('gradle/bintray.gradle')
-apply from: rootProject.file('gradle/local-maven.gradle')
-
-buildscript {
-    repositories {
-        jcenter()
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:2.1"
-        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
-    }
-}
-
 sourceCompatibility = 1.8
 
 repositories {
-    jcenter()
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
     mavenCentral()
     google()
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.json:json:20190722"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+//    implementation "org.json:json:20190722"
+    implementation "org.json:json:20230227"
     implementation "org.jdom:jdom:2.0.2"
 //    implementation 'commons-beanutilscommons-beanutils1.9.4'
 //    implementation 'org.apache.commonscommons-collections44.4'
